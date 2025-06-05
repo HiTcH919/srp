@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}نظام إدارة أوامر الخدمة{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+    <div class="page-container"> {# Optional: A wrapper for better control over footer positioning #}
+        <header>
+            <div class="container"> {# Using .container for consistent padding #}
+                 <h1 class="app-title-main"><a href="{{ url_for('dashboard.home') }}">نظام إدارة أوامر الخدمة</a></h1>
+                 <nav>
+                    <ul>
+                        <li><a href="{{ url_for('dashboard.home') }}" class="{{ 'active' if request.endpoint == 'dashboard.home' else '' }}">الرئيسية</a></li>
+                        <li><a href="{{ url_for('service_orders.new_service_basic_info') }}" class="{{ 'active' if request.blueprint == 'service_orders' and 'new' in request.path else '' }}">خدمة جديدة</a></li>
+                        {# Add other main navigation links here #}
+                        <li><a href="#">التقارير</a></li>
+                        <li><a href="#">دليل الهواتف</a></li>
+                        <li><a href="#">الإعدادات</a></li>
+                        {% if current_user.is_authenticated %}
+                            <li><span>مرحباً, {{ current_user.username }}</span></li>
+                            <li><a href="{{ url_for('auth.logout') }}">تسجيل الخروج</a></li>
+                        {% else %}
+                            <li><a href="{{ url_for('auth.login') }}" class="{{ 'active' if request.endpoint == 'auth.login' else '' }}">تسجيل الدخول</a></li>
+                            <li><a href="{{ url_for('auth.register') }}" class="{{ 'active' if request.endpoint == 'auth.register' else '' }}">إنشاء حساب</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flashed-messages-container"> {# Centered container for flashes #}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category|default('info') }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+                  </div>
+                {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <main class="container"> {# Added .container for consistent padding for main content #}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    <footer>
+        <p>&copy; {{ "now"|datetimeformat('%Y') }} - نظام إدارة أوامر الخدمة (نسخة تجريبية)</p>
+    </footer>
+    {% block scripts %}
+    <script src="{{ url_for('static', filename='js/service_order_form_handler.js') }}" defer></script>
+    {% endblock %}
+</body>
+</html>

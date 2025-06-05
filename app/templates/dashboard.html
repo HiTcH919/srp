@@ -1,0 +1,109 @@
+{% extends "layout.html" %}
+
+{% block title %}لوحة التحكم الرئيسية{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <ul>
+            <li><a href="{{ url_for('dashboard.home') }}"><span class="icon icon-home"></span>الرئيسية</a></li>
+            <li><a href="#"><span class="icon icon-new-service"></span>خدمة جديدة</a></li> {# Placeholder link #}
+            <li><a href="#"><span class="icon icon-reports"></span>التقارير</a></li> {# Placeholder link #}
+            <li><a href="#"><span class="icon icon-settings-nav"></span>الإعدادات</a></li> {# Placeholder link #}
+        </ul>
+    </nav>
+
+    <!-- Welcome Message -->
+    <div class="welcome-message">
+        {# current_user is available globally if user is logged in #}
+        <p>مرحباً <strong>{{ current_user.username if current_user.is_authenticated else 'زائر' }}</strong> - التاريخ: <span id="current-date"></span></p>
+    </div>
+
+    <!-- Quick Statistics -->
+    <section class="quick-stats">
+        <h3><span class="icon icon-stats"></span>إحصائيات سريعة {% if not is_admin_view %}(خاصة بك){% endif %}</h3>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="label"><span class="icon">📝</span> اليوم</span>
+                <span class="value">{{ quick_stats_data.today | default('0') }}</span>
+            </div>
+            <div class="stat-item">
+                 <span class="label"><span class="icon">📅</span> الأسبوع (قيد التطوير)</span>
+                <span class="value">{{ quick_stats_data.week | default('N/A') }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="label"><span class="icon">🗓️</span> الشهر (قيد التطوير)</span>
+                <span class="value">{{ quick_stats_data.month | default('N/A') }}</span>
+            </div>
+            {% if is_admin_view %}
+            <div class="stat-item">
+                <span class="label"><span class="icon">📈</span> إجمالي النظام</span>
+                <span class="value">{{ quick_stats_data.total | default('0') }}</span>
+            </div>
+            {% else %}
+            <div class="stat-item">
+                <span class="label"><span class="icon">🧾</span> إجمالي خدماتك</span>
+                <span class="value">{{ quick_stats_data.user_total | default('0') }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="quick-actions">
+        <h3><span class="icon icon-actions"></span>إجراءات سريعة</h3>
+        <a href="{{ url_for('service_orders.new_service_basic_info') }}" id="newServiceBtnDashboard" class="action-button"><span class="icon icon-new-service-action"></span>خدمة جديدة</a>
+        <a href="#" class="action-button"><span class="icon icon-search"></span>البحث</a>
+        <a href="#" class="action-button"><span class="icon icon-phonebook"></span>دليل الهواتف</a>
+        <a href="#" class="action-button"><span class="icon icon-print"></span>طباعة</a>
+    </section>
+
+    <!-- Recent Services -->
+    <section class="recent-services">
+        <h3><span class="icon icon-recent-list"></span>{{ dashboard_title | default('أحدث الخدمات') }}</h3>
+        <div class="recent-services-list">
+            {% if service_orders and service_orders|length > 0 %}
+                <ul>
+                    {% for order in service_orders %}
+                    <li>
+                        <span class="date"><strong>تاريخ الإنشاء:</strong> {{ order.created_at | datetimeformat('%Y-%m-%d %H:%M') }}</span> -
+                        <span class="name"><strong>اسم الخدمة:</strong> {{ order.service_name }}</span>
+                        {% if is_admin_view and order.author %}
+                            <span class="author" style="font-style: italic; color: #555;"> (بواسطة: {{ order.author.username }})</span> -
+                        {% else %}
+                            -
+                        {% endif %}
+                        <span class="sector"><strong>القطاع:</strong> {{ order.sector if order.sector else 'غير محدد' }}</span> -
+                        <span class="status status-{{ order.status.lower() if order.status else 'unknown' }}">{{ order.status if order.status else 'غير معروف' }}</span>
+                        <a href="{{ url_for('service_orders.view_service_order', order_id=order.id) }}" class="view-link"><span class="icon icon-view"></span>عرض</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>لا توجد أوامر خدمة لعرضها حالياً. {% if not is_admin_view %}يمكنك <a href="{{ url_for('service_orders.new_service_basic_info') }}">إنشاء خدمة جديدة</a>.{% endif %}</p>
+            {% endif %}
+        </ul>
+    </section>
+
+    <!-- Notifications -->
+    <section class="notifications">
+        <p><span class="icon icon-notification-bell"></span>تنبيهات: لديك <strong>2</strong> إشعار جديد!</p>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Display current date (Hijri/Gregorian can be more complex and require a library)
+        const dateElement = document.getElementById('current-date');
+        if (dateElement) {
+            const today = new Date();
+            // Simple Gregorian date for now
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            dateElement.textContent = today.toLocaleDateString('ar-EG', options) + " م / " + today.toLocaleDateString('en-US', options) + " G";
+        }
+    });
+</script>
+{% endblock %}

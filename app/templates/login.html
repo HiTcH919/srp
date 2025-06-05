@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}تسجيل الدخول{% endblock %}
+
+{% block content %}
+<div class="login-page-container">
+    <div class="login-container">
+        <div class="login-header">
+            <span class="app-logo icon-logo"></span> <!-- Placeholder for logo -->
+            <h1>نظام إدارة أوامر الخدمة</h1>
+        </div>
+        <form method="post"> {# Add action="{{ url_for('auth.login') }}" when POST is handled #}
+            <div class="form-group">
+                <label for="username"><span class="icon-user"></span>اسم المستخدم</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password"><span class="icon-key"></span>كلمة المرور</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="login-options">
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="remember_me" name="remember_me">
+                    <label for="remember_me">تذكرني</label>
+                </div>
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="offline_mode" name="offline_mode">
+                    <label for="offline_mode">العمل بدون إنترنت <span class="icon-offline"></span></label>
+                </div>
+            </div>
+            <button type="submit" class="login-button">تسجيل الدخول <span class="icon-login"></span></button>
+        </form>
+        <div class="login-footer">
+            <a href="#"><span class="icon-settings"></span>إعدادات الاتصال</a>
+            <a href="#"><span class="icon-help"></span>المساعدة</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

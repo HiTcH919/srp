@@ -1,0 +1,122 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {{ title if title else 'إنشاء خدمة جديدة - معلومات أساسية' }} - {{ super() }}
+{% endblock %}
+
+{% block head_extra %}
+{# Add any specific CSS or JS links for this page if needed #}
+{% endblock %}
+
+{% block content %}
+<div class="service-form-container">
+    <!-- Progress Bar and Stepper (Consider hiding or modifying in edit_mode if it's a direct edit page) -->
+    {% if not edit_mode %}
+    <div class="progress-bar-container">
+        <p>التقدم: <span class="progress-text">[████████░░] 20%</span></p>
+        <div class="progress-bar-visual">
+            <div class="progress-bar-indicator" style="width: 20%;"></div>
+        </div>
+        <div class="stepper">
+            <span class="step active">معلومات أساسية</span> &rarr;
+            <span class="step">القوى البشرية</span> &rarr;
+            <span class="step">المركبات</span> &rarr;
+            <span class="step">الشروط والتفاصيل</span> &rarr; {# Corrected step name based on actual new_service_terms.html title #}
+            <span class="step">المستندات والمراجعة</span>
+        </div>
+    </div>
+    {% else %}
+    <div style="margin-bottom: 20px; text-align: center;">
+        <h2>{{ title }}</h2>
+    </div>
+    {% endif %}
+
+    {% set form_action = url_for('service_orders.submit_edit_service_order_basic', order_id=service_order_id) if edit_mode else '#' %}
+    {# For create mode, action is '#' because JS handles navigation; for edit, it POSTs to the edit route #}
+
+    <form method="POST" action="{{ form_action }}" id="basic_info_form_fields">
+        <!-- Basic Service Details Section -->
+        <section class="form-section">
+            <h2 class="form-section-title"><span class="icon icon-details"></span>
+                {% if edit_mode %}تعديل البيانات الأساسية{% else %}تفاصيل الخدمة الأساسية{% endif %}
+            </h2>
+
+            <div class="form-row">
+                <div class="form-group full-width"> {# Changed to full-width for better layout #}
+                    <label for="service_name">اسم الخدمة:</label>
+                    <input type="text" id="service_name" name="service_name" placeholder="مثال: تأمين مباراة كرة قدم"
+                           value="{{ form_data.service_name if edit_mode and form_data else request.form.service_name if request else '' }}" required>
+                    {% if not edit_mode %}<small class="input-hint">اقتراحات: تأمين فعالية, مرافقة شخصية, حملة أمنية</small>{% endif %}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group half-width"> {# Changed from quarter to half #}
+                    <label for="service_date_on"><span class="icon icon-calendar"></span>التاريخ:</label>
+                    <input type="date" id="service_date_on" name="service_date_on"
+                           value="{{ form_data.service_date_on if edit_mode and form_data else request.form.service_date_on if request else '' }}" required>
+                </div>
+                <div class="form-group half-width"> {# Changed from quarter to half #}
+                    <label for="service_time_at"><span class="icon icon-clock"></span>وقت الخدمة:</label>
+                    <input type="time" id="service_time_at" name="service_time_at"
+                           value="{{ form_data.service_time_at if edit_mode and form_data else request.form.service_time_at if request else '' }}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>القطاع:</label>
+                <div class="radio-group">
+                    {% set current_sector = form_data.sector if edit_mode and form_data else request.form.sector if request else 'شرق' %}
+                    <input type="radio" id="sector_east" name="sector" value="شرق" {{ 'checked' if current_sector == 'شرق' }}>
+                    <label for="sector_east">شرق</label>
+                    <input type="radio" id="sector_central" name="sector" value="وسط" {{ 'checked' if current_sector == 'وسط' }}>
+                    <label for="sector_central">وسط</label>
+                    <input type="radio" id="sector_west" name="sector" value="غرب" {{ 'checked' if current_sector == 'غرب' }}>
+                    <label for="sector_west">غرب</label>
+                    <input type="radio" id="sector_outside" name="sector" value="خارج المحافظة" {{ 'checked' if current_sector == 'خارج المحافظة' }}>
+                    <label for="sector_outside">خارج المحافظة</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="police_station_department"><span class="icon icon-building"></span>دائرة قسم الشرطة:</label>
+                <select id="police_station_department" name="police_station_department">
+                    <option value="">-- اختر الدائرة --</option>
+                    {% set current_dept = form_data.police_station_department if edit_mode and form_data else request.form.police_station_department if request else '' %}
+                    <option value="قسم أول" {{ 'selected' if current_dept == 'قسم أول' }}>قسم أول</option>
+                    <option value="قسم ثاني" {{ 'selected' if current_dept == 'قسم ثاني' }}>قسم ثاني</option>
+                    <option value="مركز المدينة" {{ 'selected' if current_dept == 'مركز المدينة' }}>مركز المدينة</option>
+                    {# Add more options here or load dynamically #}
+                </select>
+                {% if not edit_mode %}<small class="input-hint"><span class="icon icon-search-small"></span>بحث سريع متاح عند الكتابة (لاحقاً)</small>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="general_notes"><span class="icon icon-notes"></span>ملاحظات عامة:</label>
+                <textarea id="general_notes" name="general_notes" rows="4" placeholder="أية ملاحظات إضافية حول طبيعة الخدمة, الموقع, إلخ...">{{ form_data.general_notes if edit_mode and form_data else request.form.general_notes if request else '' }}</textarea>
+            </div>
+        </section>
+
+        <!-- Form Navigation -->
+        <div class="form-navigation">
+            {% if edit_mode %}
+                <a href="{{ url_for('service_orders.view_service_order', order_id=service_order_id) }}" class="btn prev-btn"><span class="icon icon-prev"></span>إلغاء والعودة للعرض</a>
+                <button type="submit" class="btn next-btn">💾 حفظ التعديلات الأساسية</button>
+            {% else %}
+                <button type="button" class="prev-btn" disabled><span class="icon icon-prev"></span>السابق</button>
+                <a href="#" id="basicInfoNextBtn" class="next-btn next-step-btn" data-step-id="basic_info_form_fields" data-next-url="{{ url_for('service_orders.new_service_human_resources') }}">التالي (القوى البشرية)<span class="icon icon-next"></span></a>
+            {% endif %}
+        </div>
+    </form> {# This form tag closes the one defined above, or basic_info_form_fields div if not a form #}
+    {# If basic_info_form_fields was a div, the main form is on review page. This assumes direct POST for edit. #}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Add any page-specific JavaScript here if needed in the future
+    // For example, dynamic suggestions for service_name or police_station_department
+    // Or to pre-select radio/select options if not handled by Jinja as above
+</script>
+{% endblock %}

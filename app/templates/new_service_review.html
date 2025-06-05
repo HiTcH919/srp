@@ -1,0 +1,128 @@
+{% extends "layout.html" %}
+
+{% block title %}إنشاء خدمة جديدة - المستندات والمراجعة{% endblock %}
+
+{% block content %}
+<div class="service-form-container">
+    <!-- Progress Bar and Stepper -->
+    <div class="progress-bar-container">
+        <p>التقدم: <span class="progress-text">[████████████████████] 100%</span></p>
+        <div class="progress-bar-visual">
+            <div class="progress-bar-indicator" style="width: 100%;"></div>
+        </div>
+        <div class="stepper">
+            <span class="step"><a href="{{ url_for('service_orders.new_service_basic_info') }}">معلومات أساسية</a></span> &rarr;
+            <span class="step"><a href="{{ url_for('service_orders.new_service_human_resources') }}">القوى البشرية</a></span> &rarr;
+            <span class="step"><a href="{{ url_for('service_orders.new_service_vehicles') }}">المركبات</a></span> &rarr;
+            <span class="step"><a href="{{ url_for('service_orders.new_service_terms') }}">الشروط والتفاصيل</a></span> &rarr;
+            <span class="step active">المستندات والمراجعة</span>
+        </div>
+    </div>
+
+    {# This form will submit ALL data, including data populated by JS into hidden fields #}
+    <form id="serviceOrderReviewForm" method="POST" action="{{ url_for('service_orders.submit_service_order') }}" enctype="multipart/form-data">
+        {# Hidden fields from previous steps will be populated here by JavaScript #}
+        {# Example of how they might look if basic_info was the only previous step:
+        <input type="hidden" name="basic_info_service_name" class="generated-field">
+        <input type="hidden" name="basic_info_service_date_on" class="generated-field">
+        etc.
+        #}
+
+        <div id="documents_form_fields"> {# Wrapper for this step's fields to be saved by JS #}
+            <!-- Documents and Attachments Section -->
+            <section class="form-section documents-section">
+                <h2 class="form-section-title"><span class="icon icon-documents"></span>📎 المستندات والمرفقات</h2>
+
+                <div class="subsection">
+                    <h4 class="subsection-title"><span class="icon icon-service-order-image"></span>صورة أمر الخدمة <small>(اختياري)</small></h4>
+                    <div class="document-upload-area">
+                        <span class="icon icon-upload-lg">📷</span>
+                        <p>رفع صورة أمر الخدمة المكتوب</p>
+                    <input type="file" id="service_order_image_upload" name="service_order_image_file" class="file-input"> {# Changed name #}
+                        <label for="service_order_image_upload" class="file-input-label"><span class="icon icon-folder-open"></span>اختر ملف...</label>
+                        <p id="service_order_image_filename" class="filename-display"></p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h4 class="subsection-title"><span class="icon icon-additional-docs"></span>مستندات إضافية</h4>
+                    <div class="additional-documents-list">
+                        <div id="document-list-container">
+                            <!-- Example Document Entry (JS might add more here) -->
+                            <div class="list-entry-item document-item">
+                                <span class="document-name">ملف_مثال_1.pdf</span>
+                                <div class="file-actions">
+                                    <a href="#" class="view-btn" title="معاينة"><span class="icon icon-view-doc"></span>👁️</a>
+                                    <button type="button" class="delete-btn delete-list-item-btn" title="حذف"><span class="icon icon-delete-doc"></span>🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions" style="justify-content: flex-start; margin-top:10px;">
+                         <input type="file" id="additional_document_upload_input" name="additional_document_files" multiple class="file-input" style="display:none;"> {# Changed name, kept multiple attribute #}
+                             <label for="additional_document_upload_input" class="add-document-btn" id="addAdditionalDocumentBtn"><span class="icon icon-add-doc"></span>➕ إضافة مستند آخر</label>
+                        </div>
+                        <p id="additional_docs_filenames" class="filename-display" style="margin-top:10px;"></p>
+                    </div>
+                </div>
+
+                <hr style="margin: 20px 0;">
+
+                <div class="autosave-info">
+                    <span class="icon icon-autosave-disk">💾</span> حفظ تلقائي: <span class="autosave-status-text status-active">✅ مفعّل</span> | آخر حفظ: <span id="last-save-time">منذ دقيقة</span>
+                </div>
+            </section>
+        </div> {# End of documents_form_fields wrapper #}
+
+        <!-- Final Review Section -->
+        <section class="form-section review-final-section">
+            <h2 class="form-section-title"><span class="icon icon-review"></span>✅ مراجعة البيانات قبل الحفظ</h2>
+
+            <div class="service-summary">
+                <h4 class="subsection-title">ملخص الخدمة (بيانات مؤقتة من localStorage):</h4>
+                <ul>
+                    <li><strong>اسم الخدمة:</strong> <span id="summary_service_name">[سيتم ملؤها بواسطة JS]</span></li>
+                    <li><strong>التاريخ والوقت:</strong> <span id="summary_service_datetime">[سيتم ملؤها بواسطة JS]</span></li>
+                    <li><strong>القطاع:</strong> <span id="summary_service_sector">[سيتم ملؤها بواسطة JS]</span></li>
+                    {# Add more summary fields as needed, to be populated by JS #}
+                </ul>
+            </div>
+
+            <div class="data-verification-checklist">
+                <h4 class="subsection-title">تحقق من البيانات:</h4>
+                <ul>
+                    <li><span class="icon icon-checkbox-checked"></span>☑️ جميع الحقول الإجبارية مكتملة (افتراضي)</li>
+                    <li><span class="icon icon-checkbox-checked"></span>☑️ أرقام الهواتف تبدو صحيحة (افتراضي)</li>
+                </ul>
+            </div>
+
+            <div class="final-actions form-navigation">
+                <a href="{{ url_for('service_orders.new_service_terms') }}" class="btn prev-btn"><span class="icon icon-prev"></span>السابق (الشروط والتفاصيل)</a>
+                <button type="button" class="btn save-draft-btn" id="saveDraftReviewBtn"><span class="icon icon-save-draft"></span>💾 حفظ كمسودة</button>
+                <button type="submit" class="btn finish-save-btn"><span class="icon icon-submit-checked"></span>✅ إنهاء وحفظ كأمر خدمة</button>
+            </div>
+        </section>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{# The main service_order_form_handler.js is already included in layout.html #}
+<script>
+// Specific script for the review page if needed, e.g., to trigger populateReviewForm
+// or to handle dynamic display of summary data from localStorage.
+// For now, assuming service_order_form_handler.js handles populateReviewForm on load of this page.
+
+// Example of how summary data could be populated (conceptual, actual data keys depend on JS saving logic)
+// document.addEventListener('DOMContentLoaded', function() {
+//     const allFormData = JSON.parse(localStorage.getItem('serviceOrderFormData'));
+//     if (allFormData && allFormData.basic_info) {
+//         document.getElementById('summary_service_name').textContent = allFormData.basic_info.service_name || '[N/A]';
+//         const date = allFormData.basic_info.service_date_on || '[N/A]';
+//         const time = allFormData.basic_info.service_time_at || '[N/A]';
+//         document.getElementById('summary_service_datetime').textContent = date + ' - ' + time;
+//         document.getElementById('summary_service_sector').textContent = allFormData.basic_info.sector || '[N/A]';
+//     }
+// });
+</script>
+{% endblock %}

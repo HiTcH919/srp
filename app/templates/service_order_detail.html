@@ -1,0 +1,290 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {{ title }} - {{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4 service-detail-container">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom:15px; border-bottom: 1px solid #eee;">
+        <h1 style="font-size: 1.8em; color: #333;">تفاصيل أمر الخدمة: {{ service_order.service_name }}</h1>
+        <div class="action-buttons"> {# Wrapper for buttons #}
+            {% if current_user.is_admin or service_order.user_id == current_user.id %}
+                <a href="{{ url_for('service_orders.edit_service_order_basic_form', order_id=service_order.id) }}" class="btn btn-sm btn-warning" style="margin-left: 10px; color: #212529; text-decoration: none;">
+                    <span class="icon icon-edit">✏️</span> تعديل المعلومات الأساسية
+                </a>
+            {% endif %}
+            <a href="{{ url_for('dashboard.home') }}" class="btn btn-sm btn-outline-secondary" style="text-decoration: none;">العودة إلى لوحة التحكم</a>
+        </div>
+    </div>
+
+    <!-- Basic Information Card -->
+    <div class="card mb-3">
+        <div class="card-header">
+            <h3 style="font-size: 1.3em;"><span class="icon icon-details"></span>المعلومات الأساسية</h3>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-4">اسم الخدمة:</dt>
+                <dd class="col-sm-8">{{ service_order.service_name }}</dd>
+                <dt class="col-sm-4">تاريخ الخدمة:</dt>
+                <dd class="col-sm-8">{{ service_order.service_date_on.strftime('%Y-%m-%d') if service_order.service_date_on else 'غير محدد' }}</dd>
+                <dt class="col-sm-4">وقت الخدمة:</dt>
+                <dd class="col-sm-8">{{ service_order.service_time_at.strftime('%H:%M') if service_order.service_time_at else 'غير محدد' }}</dd>
+                <dt class="col-sm-4">القطاع:</dt>
+                <dd class="col-sm-8">{{ service_order.sector if service_order.sector else 'غير محدد' }}</dd>
+                <dt class="col-sm-4">دائرة قسم الشرطة:</dt>
+                <dd class="col-sm-8">{{ service_order.police_station_department if service_order.police_station_department else 'غير محدد' }}</dd>
+                <dt class="col-sm-4">الحالة:</dt>
+                <dd class="col-sm-8"><span class="status status-{{ service_order.status.lower() if service_order.status else 'unknown' }}">{{ service_order.status if service_order.status else 'غير محدد' }}</span></dd>
+                <dt class="col-sm-4">مستوى الأمان:</dt>
+                <dd class="col-sm-8">{{ service_order.security_level if service_order.security_level else 'غير محدد' }}</dd>
+                <dt class="col-sm-4">ملاحظات عامة:</dt>
+                <dd class="col-sm-8" style="white-space: pre-wrap;">{{ service_order.general_notes if service_order.general_notes else 'لا يوجد' }}</dd>
+                <hr class="col-12 my-2" style="border-top: 1px solid #eee; margin-top: 1rem; margin-bottom: 1rem;">
+                <dt class="col-sm-4">تم الإنشاء بواسطة:</dt>
+                <dd class="col-sm-8">{{ service_order.author.username if service_order.author else 'غير معروف' }}</dd>
+                <dt class="col-sm-4">تاريخ الإنشاء:</dt>
+                <dd class="col-sm-8">{{ service_order.created_at | datetimeformat('%Y-%m-%d %H:%M:%S') if service_order.created_at else 'غير محدد' }}</dd>
+                <dt class="col-sm-4">آخر تحديث:</dt>
+                <dd class="col-sm-8">{{ service_order.updated_at | datetimeformat('%Y-%m-%d %H:%M:%S') if service_order.updated_at else 'غير محدد' }}</dd>
+            </dl>
+        </div>
+    </div>
+
+    <!-- Human Resources Details Section -->
+    <div id="human_resources_details_display" class="mt-3">
+        <div class="card mb-3">
+            <div class="card-header"><h3 style="font-size: 1.3em;">الضباط والمشرفون <span class="icon icon-officers">🎖️</span></h3></div>
+            <div class="card-body">
+                {% if service_order.officers and service_order.officers|length > 0 %}
+                    {% for officer in service_order.officers %}
+                        <div class="mb-3 pb-2 {% if not loop.last %}border-bottom{% endif %}">
+                            <h5 class="subsection-title-sm" style="color: #0056b3;">{{ officer.officer_type | replace('_', ' ') | title if officer.officer_type else 'ضابط/مشرف' }}</h5>
+                            <dl class="row">
+                                <dt class="col-sm-3">الرتبة:</dt><dd class="col-sm-9">{{ officer.rank if officer.rank else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">الاسم:</dt><dd class="col-sm-9">{{ officer.name if officer.name else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">الهاتف:</dt><dd class="col-sm-9">{{ officer.phone if officer.phone else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">الوحدة:</dt><dd class="col-sm-9">{{ officer.unit if officer.unit else 'غير محدد' }}</dd>
+                            </dl>
+                        </div>
+                    {% endfor %}
+                {% else %}<p>لا يوجد ضباط أو مشرفون مسجلون لهذه الخدمة.</p>{% endif %}
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-header"><h3 style="font-size: 1.3em;">قوات الأمن <span class="icon icon-security-forces">🛡️</span></h3></div>
+            <div class="card-body">
+                {% if service_order.security_force_groups and service_order.security_force_groups|length > 0 %}
+                    {% for group in service_order.security_force_groups %}
+                        <div class="mb-3 pb-2 {% if not loop.last %}border-bottom{% endif %}">
+                            <h5 class="subsection-title-sm" style="color: #0056b3;">مجموعة {{ loop.index }} ({{ group.force_type if group.force_type else 'غير محدد' }})</h5>
+                            <dl class="row">
+                                <dt class="col-sm-12 subsection-title-sm">رئيس المجموعة:</dt>
+                                <dt class="col-sm-3">النوع:</dt><dd class="col-sm-9">{{ group.group_leader_type | title if group.group_leader_type else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">الرتبة:</dt><dd class="col-sm-9">{{ group.group_leader_rank if group.group_leader_rank else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">الاسم:</dt><dd class="col-sm-9">{{ group.group_leader_name if group.group_leader_name else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">الهاتف:</dt><dd class="col-sm-9">{{ group.group_leader_phone if group.group_leader_phone else 'غير محدد' }}</dd>
+                                <dt class="col-sm-12 subsection-title-sm">تفاصيل المجموعة:</dt>
+                                <dt class="col-sm-3">عدد الأفراد:</dt><dd class="col-sm-9">{{ group.group_count if group.group_count else 'غير محدد' }} فرد</dd>
+                                <dt class="col-sm-12 subsection-title-sm">مركبة المجموعة:</dt>
+                                <dt class="col-sm-3">نوع المركبة:</dt><dd class="col-sm-9">{{ group.vehicle_type if group.vehicle_type else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">رقم المركبة:</dt><dd class="col-sm-9">{{ group.vehicle_number if group.vehicle_number else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">رتبة السائق:</dt><dd class="col-sm-9">{{ group.vehicle_driver_rank if group.vehicle_driver_rank else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">اسم السائق:</dt><dd class="col-sm-9">{{ group.vehicle_driver_name if group.vehicle_driver_name else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">هاتف السائق:</dt><dd class="col-sm-9">{{ group.vehicle_driver_phone if group.vehicle_driver_phone else 'غير محدد' }}</dd>
+                            </dl>
+                        </div>
+                    {% endfor %}
+                {% else %}<p>لا توجد مجموعات قوات أمن مسجلة لهذه الخدمة.</p>{% endif %}
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-header"><h3 style="font-size: 1.3em;">العنصر النسائي <span class="icon icon-female-staff">👩‍✈️</span></h3></div>
+            <div class="card-body">
+                {% if service_order.female_staff_members and service_order.female_staff_members|length > 0 %}
+                    {% for staff in service_order.female_staff_members %}
+                        <div class="mb-3 pb-2 {% if not loop.last %}border-bottom{% endif %}">
+                            {% if staff.is_officer_in_charge %}
+                                <h5 class="subsection-title-sm" style="color: #0056b3;">الضابطة المسؤولة</h5>
+                                <dl class="row">
+                                    <dt class="col-sm-3">التخصص:</dt><dd class="col-sm-9">{{ staff.specialization if staff.specialization else 'غير محدد' }}</dd>
+                                    <dt class="col-sm-3">الرتبة:</dt><dd class="col-sm-9">{{ staff.rank if staff.rank else 'غير محدد' }}</dd>
+                                    <dt class="col-sm-3">الاسم:</dt><dd class="col-sm-9">{{ staff.name if staff.name else 'غير محدد' }}</dd>
+                                    <dt class="col-sm-3">الهاتف:</dt><dd class="col-sm-9">{{ staff.phone if staff.phone else 'غير محدد' }}</dd>
+                                </dl>
+                            {% else %}
+                                <h5 class="subsection-title-sm" style="color: #0056b3;">شرطية {{ loop.index0 if service_order.female_staff_members|selectattr('is_officer_in_charge')|list|length > 0 and staff.is_officer_in_charge == false else loop.index }}</h5>
+                                <dl class="row">
+                                    <dt class="col-sm-3">الرتبة:</dt><dd class="col-sm-9">{{ staff.rank if staff.rank else 'غير محدد' }}</dd>
+                                    <dt class="col-sm-3">الاسم:</dt><dd class="col-sm-9">{{ staff.name if staff.name else 'غير محدد' }}</dd>
+                                    <dt class="col-sm-3">الهاتف:</dt><dd class="col-sm-9">{{ staff.phone if staff.phone else 'غير محدد' }}</dd>
+                                </dl>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% else %}<p>لا يوجد أفراد من العنصر النسائي مسجلون لهذه الخدمة.</p>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Vehicles Details Section -->
+    <div id="vehicles_details_display" class="mt-3">
+        <div class="card mb-3">
+            <div class="card-header"><h3 style="font-size: 1.3em;">المركبات والمعدات <span class="icon icon-other-vehicles">🚗</span></h3></div>
+            <div class="card-body">
+                {% set emergency_car_processed = namespace(found=false) %}
+                {% set other_vehicles_list = [] %}
+                {% for vehicle in service_order.vehicles %}
+                    {% if vehicle.vehicle_category == 'emergency_car' and not emergency_car_processed.found %}
+                        <div class="mb-3 pb-2 border-bottom">
+                            <h5 class="subsection-title-sm" style="color: #d9534f;">🚨 سيارة النجدة</h5>
+                            <dl class="row">
+                                <dt class="col-sm-12 subsection-title-sm">رئيس السيارة:</dt>
+                                <dt class="col-sm-3">النوع:</dt> <dd class="col-sm-9">{{ vehicle.chief_type | title if vehicle.chief_type else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">الرتبة:</dt> <dd class="col-sm-9">{{ vehicle.chief_rank if vehicle.chief_rank else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">الاسم:</dt> <dd class="col-sm-9">{{ vehicle.chief_name if vehicle.chief_name else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">الهاتف:</dt> <dd class="col-sm-9">{{ vehicle.chief_phone if vehicle.chief_phone else 'غير محدد' }}</dd>
+                                <dt class="col-sm-12 subsection-title-sm">بيانات السيارة:</dt>
+                                <dt class="col-sm-3">رقم السيارة:</dt> <dd class="col-sm-9">{{ vehicle.vehicle_number if vehicle.vehicle_number else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">نوع السيارة:</dt> <dd class="col-sm-9">{{ vehicle.vehicle_type if vehicle.vehicle_type else 'غير محدد' }}</dd>
+                                <dt class="col-sm-12 subsection-title-sm">قائد السيارة:</dt>
+                                <dt class="col-sm-3">الرتبة:</dt> <dd class="col-sm-9">{{ vehicle.driver_rank if vehicle.driver_rank else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">الاسم:</dt> <dd class="col-sm-9">{{ vehicle.driver_name if vehicle.driver_name else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">الهاتف:</dt> <dd class="col-sm-9">{{ vehicle.driver_phone if vehicle.driver_phone else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">رقم الرخصة:</dt> <dd class="col-sm-9">{{ vehicle.driver_license_number if vehicle.driver_license_number else 'غير محدد' }}</dd>
+                            </dl>
+                        </div>
+                        {% set emergency_car_processed.found = true %}
+                    {% elif vehicle.vehicle_category == 'other_vehicle' %}
+                        {% set temp = other_vehicles_list.append(vehicle) %}
+                    {% endif %}
+                {% endfor %}
+                {% if other_vehicles_list|length > 0 %}
+                    <div class="mt-3 {% if emergency_car_processed.found %}pt-3 border-top{% endif %}">
+                        <h5 class="subsection-title-sm" style="color: #5bc0de;">🚛 مركبات أخرى</h5>
+                        {% for vehicle in other_vehicles_list %}
+                            <div class="mb-3 pb-2 {% if not loop.last %}border-bottom{% endif %}">
+                                <p style="font-weight:bold; color:#0056b3;">المركبة {{ loop.index }}: {{ vehicle.vehicle_type if vehicle.vehicle_type else 'نوع غير محدد' }} (رقم: {{ vehicle.vehicle_number if vehicle.vehicle_number else 'N/A' }})</p>
+                                <dl class="row">
+                                    <dt class="col-sm-12 subsection-title-sm">القائد/السائق:</dt>
+                                    <dt class="col-sm-3">الرتبة:</dt> <dd class="col-sm-9">{{ vehicle.driver_rank if vehicle.driver_rank else 'غير محدد' }}</dd>
+                                    <dt class="col-sm-3">الاسم:</dt> <dd class="col-sm-9">{{ vehicle.driver_name if vehicle.driver_name else 'غير محدد' }}</dd>
+                                    <dt class="col-sm-3">الهاتف:</dt> <dd class="col-sm-9">{{ vehicle.driver_phone if vehicle.driver_phone else 'غير محدد' }}</dd>
+                                    <dt class="col-sm-12 subsection-title-sm">تفاصيل إضافية:</dt>
+                                    <dt class="col-sm-3">السعة/الحمولة:</dt> <dd class="col-sm-9">{{ vehicle.capacity_load if vehicle.capacity_load else 'غير محدد' }}</dd>
+                                    <dt class="col-sm-3">الغرض:</dt> <dd class="col-sm-9">{{ vehicle.purpose if vehicle.purpose else 'غير محدد' }}</dd>
+                                </dl>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% if not emergency_car_processed.found and not other_vehicles_list %}<p>لا توجد مركبات مسجلة لهذه الخدمة.</p>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Terms, Jurisdiction, and Deportees/Accused Details Section -->
+    <div id="terms_details_display" class="mt-3">
+        <div class="card mb-3">
+            <div class="card-header"><h3 style="font-size: 1.3em;">بنود الخدمة <span class="icon icon-clauses">📄</span></h3></div>
+            <div class="card-body">
+                {% if service_order.service_clauses and service_order.service_clauses|length > 0 %}
+                    {% for clause in service_order.service_clauses %}
+                        <div class="mb-3 pb-2 {% if not loop.last %}border-bottom{% endif %}">
+                            {% set clause_type_display = {
+                                'dispatch': '🚀 بند القيام', 'delivery': '📦 بند التسليم',
+                                'return': '🏠 بند العودة', 'general_details': '📝 تفاصيل إضافية عامة للبنود'
+                            } %}
+                            <h5 class="subsection-title-sm" style="color: #0056b3;">{{ clause_type_display.get(clause.clause_type, clause.clause_type | title if clause.clause_type else 'بند غير محدد') }}</h5>
+                            <dl class="row">
+                                <dt class="col-sm-3">رقم البند:</dt><dd class="col-sm-9">{{ clause.clause_number if clause.clause_number else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">صحيفة البند:</dt><dd class="col-sm-9">{{ clause.clause_document if clause.clause_document else 'غير محدد' }}</dd>
+                                {% if clause.additional_details %}
+                                    <dt class="col-sm-3">تفاصيل إضافية للبند:</dt>
+                                    <dd class="col-sm-9" style="white-space: pre-wrap;">{{ clause.additional_details }}</dd>
+                                {% endif %}
+                            </dl>
+                        </div>
+                    {% endfor %}
+                {% else %}<p>لا توجد بنود خدمة مسجلة.</p>{% endif %}
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-header"><h3 style="font-size: 1.3em;">جهة الولاية <span class="icon icon-jurisdiction">🏛️</span></h3></div>
+            <div class="card-body">
+                {% if service_order.jurisdiction_info %}
+                    <dl class="row">
+                        <dt class="col-sm-4">الجهة المرافقة:</dt>
+                        <dd class="col-sm-8">{{ service_order.jurisdiction_info.accompanying_entity if service_order.jurisdiction_info.accompanying_entity else 'غير محدد' }}</dd>
+                        <dt class="col-sm-12 subsection-title-sm">الشخص المسؤول:</dt>
+                        <dt class="col-sm-4 offset-sm-1">الوظيفة:</dt><dd class="col-sm-7">{{ service_order.jurisdiction_info.responsible_person_title if service_order.jurisdiction_info.responsible_person_title else 'غير محدد' }}</dd>
+                        <dt class="col-sm-4 offset-sm-1">الاسم:</dt><dd class="col-sm-7">{{ service_order.jurisdiction_info.responsible_person_name if service_order.jurisdiction_info.responsible_person_name else 'غير محدد' }}</dd>
+                        <dt class="col-sm-4 offset-sm-1">الهاتف:</dt><dd class="col-sm-7">{{ service_order.jurisdiction_info.responsible_person_phone if service_order.jurisdiction_info.responsible_person_phone else 'غير محدد' }}</dd>
+                        <dt class="col-sm-4 offset-sm-1">البريد:</dt><dd class="col-sm-7">{{ service_order.jurisdiction_info.responsible_person_email if service_order.jurisdiction_info.responsible_person_email else 'غير محدد' }}</dd>
+                        <dt class="col-sm-4 mt-2">ملاحظات خاصة:</dt>
+                        <dd class="col-sm-8 mt-2" style="white-space: pre-wrap;">{{ service_order.jurisdiction_info.special_notes if service_order.jurisdiction_info.special_notes else 'لا يوجد' }}</dd>
+                    </dl>
+                {% else %}<p>لا توجد معلومات عن جهة الولاية مسجلة.</p>{% endif %}
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-header"><h3 style="font-size: 1.3em;">المرحلين/المتهمين <span class="icon icon-deportees">⚖️</span></h3></div>
+            <div class="card-body">
+                {% if service_order.deportees_accused and service_order.deportees_accused|length > 0 %}
+                    <p><strong>مستوى الأمان المحدد للتعامل معهم:</strong> {{ service_order.security_level if service_order.security_level else 'عادي' }}</p><hr>
+                    {% for person in service_order.deportees_accused %}
+                        <div class="mb-3 pb-2 {% if not loop.last %}border-bottom{% endif %}">
+                            <h5 class="subsection-title-sm" style="color: #0056b3;">الشخص {{ loop.index }}: {{ person.name if person.name else 'اسم غير محدد' }}</h5>
+                            <dl class="row">
+                                <dt class="col-sm-3">رقم القضية:</dt><dd class="col-sm-9">{{ person.case_number if person.case_number else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">الرقم القومي:</dt><dd class="col-sm-9">{{ person.national_id if person.national_id else 'غير محدد' }}</dd>
+                                <dt class="col-sm-3">التهمة:</dt><dd class="col-sm-9" style="white-space: pre-wrap;">{{ person.charge if person.charge else 'غير محدد' }}</dd>
+                            </dl>
+                        </div>
+                    {% endfor %}
+                {% else %}<p>لا يوجد مرحلين أو متهمين مسجلون لهذه الخدمة.</p>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Documents Display Section -->
+    <div id="documents_details_display" class="mt-3">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 style="font-size: 1.3em;">المستندات والمرفقات <span class="icon icon-documents">📎</span></h3>
+            </div>
+            <div class="card-body">
+                {% if service_order.documents and service_order.documents|length > 0 %}
+                    <ul class="list-group list-group-flush document-list">
+                        {% for doc in service_order.documents %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    {% set doc_type_display = {
+                                        'service_order_image': '📸 صورة أمر الخدمة',
+                                        'additional_document': '📄 مستند إضافي'
+                                    } %}
+                                    <strong>{{ doc_type_display.get(doc.document_type, doc.document_type | title if doc.document_type else 'مستند') }}:</strong>
+                                    <span class="document-name-display">{{ doc.file_name }}</span>
+                                </div>
+                                <a href="{{ url_for('service_orders.download_document', document_id=doc.id) }}" class="btn btn-sm btn-outline-primary download-link" target="_blank">
+                                    <span class="icon icon-download">📥</span> تحميل/عرض
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>لا توجد مستندات مرفقة لهذه الخدمة.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{# Add any page-specific JS if needed later for interactivity #}
+{% endblock %}

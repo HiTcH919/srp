@@ -1,0 +1,192 @@
+{% extends "layout.html" %}
+
+{% block title %}إنشاء خدمة جديدة - المركبات والمعدات{% endblock %}
+
+{% block content %}
+<div class="service-form-container">
+    <!-- Progress Bar and Stepper -->
+    <div class="progress-bar-container">
+        <p>التقدم: <span class="progress-text">[████████████████░░] 60%</span></p> {# Updated progress text #}
+        <div class="progress-bar-visual">
+            <div class="progress-bar-indicator" style="width: 60%;"></div> {# Updated width #}
+        </div>
+        <div class="stepper">
+            <span class="step"><a href="{{ url_for('service_orders.new_service_basic_info') }}">معلومات أساسية</a></span> &rarr;
+            <span class="step"><a href="{{ url_for('service_orders.new_service_human_resources') }}">القوى البشرية</a></span> &rarr;
+            <span class="step active">المركبات</span> &rarr;
+            <span class="step">المستندات</span> &rarr;
+            <span class="step">المراجعة</span>
+        </div>
+    </div>
+
+    <div id="vehicles_form_fields"> {# Wrapper for this step's fields #}
+        <!-- Emergency Car Section -->
+        <section class="form-section emergency-car-section">
+            <h2 class="form-section-title"><span class="icon icon-emergency-car"></span>🚨 سيارة النجدة</h2>
+
+            <div class="vehicle-details-block"> {# A general block for this vehicle type #}
+                <h4 class="subsection-title">رئيس السيارة:</h4>
+                <div class="form-group radio-group-inline">
+                    <label class="main-label">النوع:</label>
+                    <input type="radio" id="ec_chief_type_officer" name="ec_chief_type" value="ضابط" checked>
+                    <label for="ec_chief_type_officer">ضابط</label>
+                    <input type="radio" id="ec_chief_type_individual" name="ec_chief_type" value="فرد">
+                    <label for="ec_chief_type_individual">فرد</label>
+                </div>
+                <div class="form-row">
+                    <div class="form-group third-width">
+                        <label for="ec_chief_rank">الرتبة:</label>
+                        <input type="text" id="ec_chief_rank" name="ec_chief_rank">
+                    </div>
+                    <div class="form-group third-width">
+                        <label for="ec_chief_name">الاسم:</label>
+                        <input type="text" id="ec_chief_name" name="ec_chief_name">
+                    </div>
+                    <div class="form-group third-width">
+                        <label for="ec_chief_phone">الهاتف:</label>
+                        <input type="text" id="ec_chief_phone" name="ec_chief_phone">
+                    </div>
+                </div>
+
+                <h4 class="subsection-title">بيانات السيارة:</h4>
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label for="ec_car_number">رقم السيارة:</label>
+                        <input type="text" id="ec_car_number" name="ec_car_number">
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="ec_car_type">نوع السيارة:</label>
+                        <select id="ec_car_type" name="ec_car_type">
+                            <option value="">-- اختر النوع --</option>
+                            <option value="بوكس شرطة">بوكس شرطة</option>
+                            <option value="دورية">دورية</option>
+                            <option value="جيب">جيب</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h4 class="subsection-title">قائد السيارة:</h4>
+                <div class="form-row">
+                    <div class="form-group third-width">
+                        <label for="ec_driver_rank">الرتبة:</label>
+                        <input type="text" id="ec_driver_rank" name="ec_driver_rank">
+                    </div>
+                    <div class="form-group third-width">
+                        <label for="ec_driver_name">الاسم:</label>
+                        <input type="text" id="ec_driver_name" name="ec_driver_name">
+                    </div>
+                    <div class="form-group third-width">
+                        <label for="ec_driver_phone">الهاتف:</label>
+                        <input type="text" id="ec_driver_phone" name="ec_driver_phone">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label for="ec_driver_license">رقم الرخصة:</label>
+                        <input type="text" id="ec_driver_license" name="ec_driver_license">
+                    </div>
+                </div>
+            </div> {# End of .vehicle-details-block #}
+
+            {# This section might not need 'Add another' if there's typically only one emergency car #}
+            {# But 'Save to Phonebook' could be relevant for the personnel involved #}
+            <div class="form-actions">
+                 <div class="save-to-phonebook-option">
+                    <input type="checkbox" id="save_ec_personnel_to_phonebook" name="save_ec_personnel_to_phonebook" checked>
+                    <label for="save_ec_personnel_to_phonebook"><span class="icon icon-save-phonebook"></span>✅ حفظ الأشخاص في دليل الهواتف</label>
+                </div>
+            </div>
+            </div>
+        </section>
+
+        <!-- Other Vehicles Section -->
+        <section class="form-section other-vehicles-section">
+            <h2 class="form-section-title"><span class="icon icon-other-vehicles"></span>🚛 المركبات الأخرى</h2>
+
+            <div id="other-vehicles-list">
+                <!-- Example Other Vehicle Entry (this block can be duplicated by JS) -->
+                <div class="other-vehicle-entry">
+                    <h4 class="vehicle-number-title">المركبة رقم <span class="vehicle-idx">1</span>:</h4>
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label for="ov_type_1">النوع:</label>
+                            <select id="ov_type_1" name="ov_type_1[]">
+                                <option value="">-- اختر النوع --</option>
+                                <option value="لوري">لوري</option>
+                                <option value="أتوبيس">أتوبيس</option>
+                                <option value="ميكروباص">ميكروباص</option>
+                                <option value="موتوسيكل">موتوسيكل</option>
+                                <option value="ونش">ونش</option>
+                                <option value="إسعاف">إسعاف</option>
+                                <option value="مطافي">مطافي</option>
+                                <option value="أخرى">أخرى</option>
+                            </select>
+                        </div>
+                        <div class="form-group half-width">
+                            <label for="ov_number_1">الرقم:</label>
+                            <input type="text" id="ov_number_1" name="ov_number_1[]">
+                        </div>
+                    </div>
+
+                    <h5 class="subsection-title-sm">القائد/السائق:</h5>
+                    <div class="form-row">
+                        <div class="form-group third-width">
+                            <label for="ov_driver_rank_1">الرتبة:</label>
+                            <input type="text" id="ov_driver_rank_1" name="ov_driver_rank_1[]">
+                        </div>
+                        <div class="form-group third-width">
+                            <label for="ov_driver_name_1">الاسم:</label>
+                            <input type="text" id="ov_driver_name_1" name="ov_driver_name_1[]">
+                        </div>
+                        <div class="form-group third-width">
+                            <label for="ov_driver_phone_1">الهاتف:</label>
+                            <input type="text" id="ov_driver_phone_1" name="ov_driver_phone_1[]">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label for="ov_capacity_1">السعة/الحمولة:</label>
+                            <input type="text" id="ov_capacity_1" name="ov_capacity_1[]">
+                        </div>
+                        <div class="form-group half-width">
+                            <label for="ov_purpose_1">الغرض:</label>
+                            <input type="text" id="ov_purpose_1" name="ov_purpose_1[]">
+                        </div>
+                    </div>
+                     <div class="form-row">
+                         <div class="form-group full-width text-left"> {# Align button to the left for RTL #}
+                            <button type="button" class="delete-other-vehicle-btn"><span class="icon icon-delete"></span>🗑️ حذف هذه المركبة</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- End of Example Other Vehicle Entry -->
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="add-other-vehicle-btn"><span class="icon icon-add-vehicle"></span>➕ إضافة مركبة أخرى</button>
+                <button type="button" class="copy-other-vehicle-btn"><span class="icon icon-copy"></span>📋 نسخ من سابقة</button>
+                 <div class="save-to-phonebook-option">
+                    <input type="checkbox" id="save_ov_personnel_to_phonebook" name="save_ov_personnel_to_phonebook" checked>
+                    <label for="save_ov_personnel_to_phonebook"><span class="icon icon-save-phonebook"></span>✅ حفظ الأشخاص في دليل الهواتف</label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Form Navigation -->
+        <div class="form-navigation">
+            <a href="{{ url_for('service_orders.new_service_human_resources') }}" class="prev-btn btn"><span class="icon icon-prev"></span>السابق (القوى البشرية)</a>
+            {# Updated Next button for JS handler #}
+            <a href="#" id="vehiclesNextBtn" class="next-btn next-step-btn" data-step-id="vehicles_form_fields" data-next-url="{{ url_for('service_orders.new_service_terms') }}">التالي (الشروط والتفاصيل)<span class="icon icon-next"></span></a>
+        </div>
+    </div> {# End of vehicles_form_fields wrapper #}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+// Page-specific JS if needed
+</script>
+{% endblock %}

@@ -1,0 +1,283 @@
+{% extends "layout.html" %}
+
+{% block title %}إنشاء خدمة جديدة - القوى البشرية{% endblock %}
+
+{% block content %}
+<div class="service-form-container">
+    <!-- Progress Bar and Stepper -->
+    <div class="progress-bar-container">
+        <p>التقدم: <span class="progress-text">[████████████░░░░] 40%</span></p> {# Updated progress text #}
+        <div class="progress-bar-visual">
+            <div class="progress-bar-indicator" style="width: 40%;"></div> {# Updated width #}
+        </div>
+        <div class="stepper">
+            <span class="step"><a href="{{ url_for('service_orders.new_service_basic_info') }}">معلومات أساسية</a></span> &rarr;
+            <span class="step active">القوى البشرية</span> &rarr;
+            <span class="step">المركبات</span> &rarr;
+            <span class="step">المستندات</span> &rarr;
+            <span class="step">المراجعة</span>
+        </div>
+    </div>
+
+    <div id="human_resources_form_fields"> {# Wrapper for this step's fields #}
+        <!-- Officers and Supervisors Section -->
+        <section class="form-section">
+            <h2 class="form-section-title"><span class="icon icon-officers"></span>🎖️ الضباط والمشرفون</h2>
+
+            <div class="officer-block">
+                <h4>مشرف عام الخدمة:</h4>
+                <div class="form-row">
+                    <div class="form-group third-width">
+                        <label for="gs_rank">الرتبة:</label>
+                        <input type="text" id="gs_rank" name="gs_rank" placeholder="مثال: عميد">
+                    </div>
+                    <div class="form-group third-width">
+                        <label for="gs_name">الاسم:</label>
+                        <input type="text" id="gs_name" name="gs_name" placeholder="الاسم رباعي">
+                    </div>
+                    <div class="form-group third-width">
+                        <label for="gs_phone">الهاتف:</label>
+                        <input type="text" id="gs_phone" name="gs_phone" placeholder="رقم الهاتف">
+                    </div>
+                </div>
+                <div class="form-row">
+                     <div class="form-group full-width"> {# Or half-width if there's another field #}
+                        <label for="gs_unit">الوحدة:</label>
+                        <input type="text" id="gs_unit" name="gs_unit" placeholder="اسم الوحدة أو القسم">
+                    </div>
+                </div>
+            </div>
+
+            <div class="officer-block">
+                <h4>مشرف النظام:</h4>
+                <div class="form-row">
+                    <div class="form-group third-width">
+                        <label for="ss_rank">الرتبة:</label>
+                        <input type="text" id="ss_rank" name="ss_rank">
+                    </div>
+                    <div class="form-group third-width">
+                        <label for="ss_name">الاسم:</label>
+                        <input type="text" id="ss_name" name="ss_name">
+                    </div>
+                    <div class="form-group third-width">
+                        <label for="ss_phone">الهاتف:</label>
+                        <input type="text" id="ss_phone" name="ss_phone">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="ss_unit">الوحدة:</label>
+                        <input type="text" id="ss_unit" name="ss_unit">
+                    </div>
+                </div>
+            </div>
+
+            <div class="officer-block">
+                <h4>مشرف المباحث:</h4>
+                <div class="form-row">
+                    <div class="form-group third-width">
+                        <label for="ds_rank">الرتبة:</label>
+                        <input type="text" id="ds_rank" name="ds_rank">
+                    </div>
+                    <div class="form-group third-width">
+                        <label for="ds_name">الاسم:</label>
+                        <input type="text" id="ds_name" name="ds_name">
+                    </div>
+                    <div class="form-group third-width">
+                        <label for="ds_phone">الهاتف:</label>
+                        <input type="text" id="ds_phone" name="ds_phone">
+                    </div>
+                </div>
+                 <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="ds_unit">الوحدة:</label>
+                        <input type="text" id="ds_unit" name="ds_unit">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="add-officer-btn"><span class="icon icon-add-person"></span>➕ إضافة ضابط آخر</button>
+                <div class="save-to-phonebook-option">
+                    <input type="checkbox" id="save_officers_to_phonebook" name="save_officers_to_phonebook" checked>
+                    <label for="save_officers_to_phonebook"><span class="icon icon-save-phonebook"></span>✅ حفظ في دليل الهواتف</label>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Security Forces Section -->
+        <section class="form-section security-forces-section">
+            <h2 class="form-section-title"><span class="icon icon-security-forces"></span>🛡️ قوات الأمن</h2>
+
+            <div class="security-group-block"> {# Repeat this block for each group #}
+                <div class="form-group radio-group-inline">
+                    <label class="main-label">النوع:</label>
+                    <input type="radio" id="sf_type_central_1" name="sf_type_1" value="مركزي" checked>
+                    <label for="sf_type_central_1">مركزي</label>
+                    <input type="radio" id="sf_type_security_1" name="sf_type_1" value="قوات أمن">
+                    <label for="sf_type_security_1">قوات أمن</label>
+                </div>
+
+                <h4 class="subsection-title">رئيس المجموعة:</h4>
+                <div class="form-group radio-group-inline">
+                    <label class="main-label">نوع الرئيس:</label>
+                    <input type="radio" id="sf_leader_type_officer_1" name="sf_leader_type_1" value="ضابط" checked>
+                    <label for="sf_leader_type_officer_1">ضابط</label>
+                    <input type="radio" id="sf_leader_type_individual_1" name="sf_leader_type_1" value="فرد">
+                    <label for="sf_leader_type_individual_1">فرد</label>
+                </div>
+                <div class="form-row">
+                    <div class="form-group third-width">
+                        <label for="sf_leader_rank_1">الرتبة:</label>
+                        <input type="text" id="sf_leader_rank_1" name="sf_leader_rank_1">
+                    </div>
+                    <div class="form-group third-width">
+                        <label for="sf_leader_name_1">الاسم:</label>
+                        <input type="text" id="sf_leader_name_1" name="sf_leader_name_1">
+                    </div>
+                    <div class="form-group third-width">
+                        <label for="sf_leader_phone_1">الهاتف:</label>
+                        <input type="text" id="sf_leader_phone_1" name="sf_leader_phone_1">
+                    </div>
+                </div>
+
+                <h4 class="subsection-title">تفاصيل المجموعة:</h4>
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label for="sf_group_count_1">عدد المجموعة:</label>
+                        <input type="number" id="sf_group_count_1" name="sf_group_count_1" min="0">
+                        <small class="input-hint">فرد</small>
+                    </div>
+                </div>
+
+                <h4 class="subsection-title">المركبة:</h4>
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label for="sf_vehicle_type_1">النوع:</label>
+                        <select id="sf_vehicle_type_1" name="sf_vehicle_type_1">
+                            <option value="">-- اختر --</option>
+                            <option value="مدرعة">مدرعة</option>
+                            <option value="بوكس">بوكس</option>
+                            <option value="أتوبيس">أتوبيس</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="sf_vehicle_number_1">الرقم:</label>
+                        <input type="text" id="sf_vehicle_number_1" name="sf_vehicle_number_1">
+                    </div>
+                </div>
+
+                <h4 class="subsection-title">قائد المركبة:</h4>
+                <div class="form-row">
+                    <div class="form-group third-width">
+                        <label for="sf_driver_rank_1">الرتبة:</label>
+                        <input type="text" id="sf_driver_rank_1" name="sf_driver_rank_1">
+                    </div>
+                    <div class="form-group third-width">
+                        <label for="sf_driver_name_1">الاسم:</label>
+                        <input type="text" id="sf_driver_name_1" name="sf_driver_name_1">
+                    </div>
+                    <div class="form-group third-width">
+                        <label for="sf_driver_phone_1">الهاتف:</label>
+                        <input type="text" id="sf_driver_phone_1" name="sf_driver_phone_1">
+                    </div>
+                </div>
+            </div> {# End of .security-group-block #}
+
+            <div class="form-actions">
+                <button type="button" class="add-group-btn"><span class="icon icon-add-group"></span>➕ إضافة مجموعة أخرى</button>
+                <button type="button" class="copy-data-btn"><span class="icon icon-copy"></span>📋 نسخ البيانات</button>
+                 <div class="save-to-phonebook-option"> {# Re-using class from officers section for consistency #}
+                    <input type="checkbox" id="save_sf_to_phonebook" name="save_sf_to_phonebook" checked>
+                    <label for="save_sf_to_phonebook"><span class="icon icon-save-phonebook"></span>✅ حفظ في دليل الهواتف</label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Female Staff Section -->
+        <section class="form-section female-staff-section">
+            <h2 class="form-section-title"><span class="icon icon-female-staff"></span>👩‍✈️ العنصر النسائي</h2>
+
+            <h4 class="subsection-title">الضابطة المسؤولة (إن وجدت):</h4>
+            <div class="officer-block"> {# Re-using officer-block for consistent styling #}
+                <div class="form-row">
+                    <div class="form-group third-width">
+                        <label for="foic_rank">الرتبة:</label>
+                        <input type="text" id="foic_rank" name="foic_rank">
+                    </div>
+                    <div class="form-group third-width">
+                        <label for="foic_name">الاسم:</label>
+                        <input type="text" id="foic_name" name="foic_name">
+                    </div>
+                    <div class="form-group third-width">
+                        <label for="foic_phone">الهاتف:</label>
+                        <input type="text" id="foic_phone" name="foic_phone">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="foic_specialization">التخصص:</label>
+                        <input type="text" id="foic_specialization" name="foic_specialization">
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="subsection-title">الشرطيات:</h4>
+            <div id="female-staff-list">
+                <!-- Example Female Staff Member Entry (this block can be duplicated by JS) -->
+                <div class="female-staff-list-item">
+                    <div class="form-row">
+                        <div class="form-group third-width">
+                            <label for="fs_rank_1">الرتبة:</label>
+                            <input type="text" id="fs_rank_1" name="fs_rank_1[]">
+                        </div>
+                        <div class="form-group third-width">
+                            <label for="fs_name_1">الاسم:</label>
+                            <input type="text" id="fs_name_1" name="fs_name_1[]">
+                        </div>
+                        <div class="form-group third-width">
+                            <label for="fs_phone_1">الهاتف:</label>
+                            <input type="text" id="fs_phone_1" name="fs_phone_1[]">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                         <div class="form-group full-width text-left"> {# Align button to the left for RTL #}
+                            <button type="button" class="delete-female-staff-btn"><span class="icon icon-delete"></span>🗑️ حذف</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- End of Example Entry -->
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="add-female-staff-btn"><span class="icon icon-add-person"></span>➕ إضافة شرطية</button>
+                <div class="total-count-display">
+                    <label for="female_staff_total_count">العدد الإجمالي:</label>
+                    <input type="text" id="female_staff_total_count" name="female_staff_total_count" value="1" readonly style="width: 60px; text-align: center;">
+                    <span>شرطية</span>
+                </div>
+                 <div class="save-to-phonebook-option">
+                    <input type="checkbox" id="save_fs_to_phonebook" name="save_fs_to_phonebook" checked>
+                    <label for="save_fs_to_phonebook"><span class="icon icon-save-phonebook"></span>✅ حفظ في دليل الهواتف</label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Form Navigation -->
+        <div class="form-navigation">
+            <a href="{{ url_for('service_orders.new_service_basic_info') }}" class="prev-btn btn"><span class="icon icon-prev"></span>السابق (المعلومات الأساسية)</a>
+            {# Updated Next button for JS handler #}
+            <a href="#" id="hrNextBtn" class="next-btn next-step-btn" data-step-id="human_resources_form_fields" data-next-url="{{ url_for('service_orders.new_service_vehicles') }}">التالي (المركبات)<span class="icon icon-next"></span></a>
+        </div>
+    </div> {# End of human_resources_form_fields wrapper #}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+// Page-specific JS if needed
+</script>
+{% endblock %}

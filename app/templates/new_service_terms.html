@@ -1,0 +1,199 @@
+{% extends "layout.html" %}
+
+{% block title %}إنشاء خدمة جديدة - الشروط والتفاصيل{% endblock %}
+
+{% block content %}
+<div class="service-form-container">
+    <!-- Progress Bar and Stepper -->
+    <div class="progress-bar-container">
+        <p>التقدم: <span class="progress-text">[██████████████████░] 80%</span></p> {# Updated progress text #}
+        <div class="progress-bar-visual">
+            <div class="progress-bar-indicator" style="width: 80%;"></div> {# Updated width #}
+        </div>
+        <div class="stepper">
+            <span class="step"><a href="{{ url_for('service_orders.new_service_basic_info') }}">معلومات أساسية</a></span> &rarr;
+            <span class="step"><a href="{{ url_for('service_orders.new_service_human_resources') }}">القوى البشرية</a></span> &rarr;
+            <span class="step"><a href="{{ url_for('service_orders.new_service_vehicles') }}">المركبات</a></span> &rarr;
+            <span class="step active">الشروط والتفاصيل</span> &rarr;
+            <span class="step">المستندات والمراجعة</span>
+        </div>
+    </div>
+
+    <div id="terms_form_fields"> {# Wrapper for this step's fields #}
+        <!-- Service Clauses Section -->
+        <section class="form-section service-clauses-section">
+            <h2 class="form-section-title"><span class="icon icon-clauses"></span>📄 بنود الخدمة</h2>
+
+            <div class="clause-block">
+                <h4><span class="icon icon-dispatch-clause"></span>🚀 بند القيام</h4>
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label for="dispatch_clause_number">رقم البند:</label>
+                        <input type="text" id="dispatch_clause_number" name="dispatch_clause_number">
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="dispatch_clause_document">صحيفة البند:</label>
+                        <input type="text" id="dispatch_clause_document" name="dispatch_clause_document">
+                    </div>
+                </div>
+            </div>
+
+            <div class="clause-block">
+                <h4><span class="icon icon-delivery-clause"></span>📦 بند التسليم</h4>
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label for="delivery_clause_number">رقم البند:</label>
+                        <input type="text" id="delivery_clause_number" name="delivery_clause_number">
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="delivery_clause_document">صحيفة البند:</label>
+                        <input type="text" id="delivery_clause_document" name="delivery_clause_document">
+                    </div>
+                </div>
+            </div>
+
+            <div class="clause-block">
+                <h4><span class="icon icon-return-clause"></span>🏠 بند العودة</h4>
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label for="return_clause_number">رقم البند:</label>
+                        <input type="text" id="return_clause_number" name="return_clause_number">
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="return_clause_document">صحيفة البند:</label>
+                        <input type="text" id="return_clause_document" name="return_clause_document">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="additional_clause_details"><span class="icon icon-notes"></span>تفاصيل إضافية للبنود:</label>
+                <textarea id="additional_clause_details" name="additional_clause_details" rows="4" placeholder="أية تفاصيل أو ملاحظات إضافية خاصة بالبنود المذكورة..."></textarea>
+            </div>
+            </div>
+        </section>
+
+        <!-- Jurisdiction Info Section -->
+        <section class="form-section jurisdiction-info-section">
+            <h2 class="form-section-title"><span class="icon icon-jurisdiction"></span>🏛️ جهة الولاية</h2>
+
+            <div class="form-group">
+                <label for="accompanying_entity">الجهة المرافقة (إن وجدت):</label>
+                <input type="text" id="accompanying_entity" name="accompanying_entity" placeholder="مثال: مديرية الصحة، النيابة العامة">
+            </div>
+
+            <h4 class="subsection-title">الشخص المسؤول:</h4>
+            <div class="form-row">
+                <div class="form-group third-width">
+                    <label for="responsible_person_title">الوظيفة:</label>
+                    <select id="responsible_person_title" name="responsible_person_title">
+                        <option value="">-- اختر الوظيفة --</option>
+                        <option value="أستاذ">أستاذ</option>
+                        <option value="طبيب">طبيب</option>
+                        <option value="مهندس">مهندس</option>
+                        <option value="محامي">محامي</option>
+                        <option value="مدير">مدير</option>
+                        <option value="وكيل نيابة">وكيل نيابة</option>
+                        <option value="أخرى">أخرى (يرجى التحديد في الملاحظات)</option>
+                    </select>
+                </div>
+                <div class="form-group two-thirds-width"> {# Custom width class might be needed #}
+                    <label for="responsible_person_name">الاسم:</label>
+                    <input type="text" id="responsible_person_name" name="responsible_person_name" placeholder="اسم الشخص المسؤول في الجهة">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group half-width">
+                    <label for="responsible_person_phone"><span class="icon icon-phone"></span>الهاتف:</label>
+                    <input type="text" id="responsible_person_phone" name="responsible_person_phone">
+                </div>
+                <div class="form-group half-width">
+                    <label for="responsible_person_email"><span class="icon icon-email"></span>البريد الإلكتروني:</label>
+                    <input type="email" id="responsible_person_email" name="responsible_person_email">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="jurisdiction_special_notes"><span class="icon icon-notes"></span>ملاحظات خاصة بجهة الولاية:</label>
+                <textarea id="jurisdiction_special_notes" name="jurisdiction_special_notes" rows="3" placeholder="أية ملاحظات أو طلبات خاصة من جهة الولاية..."></textarea>
+            </div>
+        </section>
+
+        <!-- Deportees/Accused Section -->
+        <section class="form-section deportees-accused-section">
+            <h2 class="form-section-title"><span class="icon icon-deportees"></span>⚖️ المرحلين/المتهمين (إن وجدوا)</h2>
+
+            <div class="form-group half-width"> {# Placed here for overall count before list #}
+                <label for="deportees_total_count">العدد الإجمالي:</label>
+                <input type="number" id="deportees_total_count" name="deportees_total_count" min="0" value="1" style="width: 100px;">
+                <small class="input-hint">شخص</small>
+            </div>
+
+            <div id="deportees-list">
+                <!-- Example Deportee/Accused Person Entry -->
+                <div class="list-entry-item accused-person-entry">
+                    <h4 class="entry-item-title">الشخص رقم <span class="person-idx">1</span>:</h4>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="accused_name_1">الاسم:</label>
+                            <input type="text" id="accused_name_1" name="accused_name_1[]" placeholder="الاسم رباعي">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label for="accused_case_number_1">رقم القضية:</label>
+                            <input type="text" id="accused_case_number_1" name="accused_case_number_1[]">
+                        </div>
+                        <div class="form-group half-width">
+                            <label for="accused_national_id_1">الرقم القومي:</label>
+                            <input type="text" id="accused_national_id_1" name="accused_national_id_1[]">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="accused_charge_1">التهمة:</label>
+                            <input type="text" id="accused_charge_1" name="accused_charge_1[]">
+                        </div>
+                    </div>
+                     <div class="form-row">
+                         <div class="form-group full-width text-left">
+                            <button type="button" class="delete-list-item-btn"><span class="icon icon-delete"></span>🗑️ حذف هذا الشخص</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- End of Example Entry -->
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="add-list-item-btn" id="add-accused-person-btn"><span class="icon icon-add-person"></span>➕ إضافة شخص آخر</button>
+            </div>
+
+            <div class="form-group security-level-options">
+                <label class="main-label">مستوى الأمان المطلوب:</label>
+                <div class="radio-group">
+                    <input type="radio" id="security_normal" name="security_level" value="عادي" checked>
+                    <label for="security_normal">عادي</label>
+                    <input type="radio" id="security_medium" name="security_level" value="متوسط">
+                    <label for="security_medium">متوسط</label>
+                    <input type="radio" id="security_high" name="security_level" value="عالي">
+                    <label for="security_high">عالي</label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Form Navigation -->
+        <div class="form-navigation">
+            <a href="{{ url_for('service_orders.new_service_vehicles') }}" class="prev-btn btn"><span class="icon icon-prev"></span>السابق (المركبات)</a>
+            {# Updated Next button for JS handler #}
+            <a href="#" id="termsNextBtn" class="next-btn next-step-btn" data-step-id="terms_form_fields" data-next-url="{{ url_for('service_orders.new_service_review_docs') }}">التالي (المستندات والمراجعة)<span class="icon icon-next"></span></a>
+        </div>
+    </div> {# End of terms_form_fields wrapper #}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+// Page-specific JS if needed
+</script>
+{% endblock %}
